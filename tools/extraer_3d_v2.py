@@ -108,64 +108,84 @@ for f in (0, 1):
 
 # ---------- agregados v2 (relato de Santiago, no están en el plano) ----------
 ATTIC = 6.30                                   # piso del entretecho (arriba de la losa de cielorraso)
-LOSA_COCH_B, LOSA_COCH_T = 2.95, 3.15          # losa de la cochera; arriba, el altillo
-abertura = box(5.69, 3.0, 6.01, 3.8)            # paso del dormitorio al altillo de la cochera
+LOSA_COCH_B, LOSA_COCH_T = 2.75, 2.90          # losa de la cochera (fotos: alero de la cochera ~3 m); arriba, el altillo
+abertura = box(5.69, 4.40, 6.01, 5.05)          # puerta chica 0,65 x 1,70 a mitad de la pared (foto del dormitorio)
 W[1] = W[1].difference(abertura)
 placard = box(0.15, 6.2, 1.7, 6.8)              # placard del dormitorio chico (Rop.)
 ladder = []
-for i in range(9):
-    x1 = 1.6 - 0.15 * i
-    ladder.append({"s": "L", "h": round(PA_FLOOR + (i + 1) * (ATTIC - PA_FLOOR) / 10, 4), "g": box(x1 - 0.15, 6.2, x1, 6.8)})
+for i in range(8):          # escalera de mano casi vertical, frente a la puerta del placard
+    y0 = 6.2 + 0.05 * i
+    ladder.append({"s": "L", "h": round(PA_FLOOR + (i + 1) * (ATTIC - PA_FLOOR) / 8, 4), "g": box(0.5, y0, 1.4, y0 + 0.05)})
+ladder.append({"s": "L", "h": ATTIC, "g": box(0.5, 6.6, 1.4, 6.8)})   # descanso arriba, a nivel del entretecho
 stairs += ladder
+stairs.append({"s": "P", "h": 3.22, "g": box(6.0, 4.40, 6.35, 5.05)})   # escalón supuesto al bajar al altillo
 stair_all = unary_union([stair_all] + [t["g"] for t in ladder])
 
 # ---------- piezas con altura ----------
 pieces = []   # {o,h,b,t,k}
+PG = []
 def add(g, b, t, k, f):
-    for p in polys(g): p.update(b=round(b, 3), t=round(t, 3), k=k, f=f); pieces.append(p)
+    for p in polys(g):
+        p.update(b=round(b, 3), t=round(t, 3), k=k, f=f); pieces.append(p)
+        PG.append((Polygon(p['o'], p['h']), b, t, k, f))
+def add_split(g, b, t, f, regions, k='muro'):
+    for reg, kk in regions:
+        add(g.intersection(reg), b, t, kk, f); g = g.difference(reg)
+    add(g, b, t, k, f)
 WIN = {f: unary_union([box(*w["r"]) for w in windows if w["f"] == f]) for f in (0, 1)}
 # planta baja
 w0 = W[0].difference(WIN[0])
 jardin = box(-1, -1, 5.75, 1.5)
 used = jardin
-add(w0.intersection(jardin), 0, 1.0, "muro", 0)
+add(w0.intersection(jardin), 0, 1.0, "ladrillo", 0)
 for t in upper:
     add(w0.intersection(t["g"]).difference(used), 0, t["h"] - 0.2, "muro", 0); used = used.union(t["g"])
 med = box(8.6, -1, 9, 13)
 add(w0.intersection(med).intersection(box(8, -1, 10, 6.75)), 0, LOSA_COCH_B, "muro", 0)
 add(w0.intersection(med).difference(box(8, -1, 10, 6.75)), 0, 2.6, "muro", 0)
-add(w0.difference(used).difference(med), 0, PA_FLOOR, "muro", 0)
+poste = box(2.45, 1.55, 2.75, 1.8)     # columna del porch: llega al techito de tejas
+add(w0.intersection(poste), 0, 2.98, "muro", 0)
+add_split(w0.difference(used).difference(med).difference(poste), 0, PA_FLOOR, 0, [(box(5.65, 1.4, 6.05, 2.55), "ladrillo")])
 # cochera cerrada: pilares y dinteles de los portones B (frente) y B' (pasante)
 for y0 in (0.0, 6.6):
-    add(box(6.0, y0, 6.2, y0 + 0.15), 0.15 if y0 else 0, LOSA_COCH_B, "muro", 0)
-    add(box(8.46, y0, 8.66, y0 + 0.15), 0.15 if y0 else 0, LOSA_COCH_B, "muro", 0)
-    add(box(6.2, y0, 8.46, y0 + 0.15), 2.10, LOSA_COCH_B, "muro", 0)
+    kk = "muro" if y0 else "ladrillo"
+    add(box(6.0, y0, 6.2, y0 + 0.15), 0.15 if y0 else 0, LOSA_COCH_B, kk, 0)
+    add(box(8.46, y0, 8.66, y0 + 0.15), 0.15 if y0 else 0, LOSA_COCH_B, kk, 0)
+    add(box(6.2, y0, 8.46, y0 + 0.15), 2.10, LOSA_COCH_B, kk, 0)
 # altillo: muretes bajos de frente y fondo (el resto lo cierra el techo)
-add(box(6.0, 0.0, 8.66, 0.15), LOSA_COCH_T, 3.75, "muro", 1)
-add(box(6.0, 6.6, 8.66, 6.75), LOSA_COCH_T, 3.75, "muro", 1)
-add(box(5.7, 3.0, 6.0, 3.8), 5.35, 6.15, "muro", 1)      # dintel de la abertura
-# tanque en el entretecho, junto a la cumbrera (ubicación aproximada)
-add(box(0.9, 7.43, 1.1, 8.97), ATTIC, 6.55, "muro", 2); add(box(2.86, 7.43, 3.06, 8.97), ATTIC, 6.55, "muro", 2)
-add(box(0.9, 7.43, 3.06, 8.97), 6.55, 7.13, "tanque", 2)
+add(box(6.0, 0.0, 8.66, 0.15), LOSA_COCH_T, 2.95, "ladrillo", 1)
+add(box(6.0, 6.6, 8.66, 6.75), LOSA_COCH_T, 3.80, "muro", 1)
+add(box(5.7, 4.40, 6.0, 5.05), PA_FLOOR + 1.70, 6.15, "muro", 1)      # dintel de la puerta chica
+# tanque en el entretecho, arriba del baño de planta alta, apoyado sobre sus muros (dato de Santiago)
+add(box(3.76, 7.43, 3.96, 8.97), ATTIC, 6.55, "muro", 2); add(box(5.72, 7.43, 5.92, 8.97), ATTIC, 6.55, "muro", 2)
+add(box(3.76, 7.43, 5.92, 8.97), 6.55, 7.13, "tanque", 2)
+# hogar del living, junto a la medianera (videos): base de piedra y campana de madera
+add(box(0.15, 4.05, 0.80, 4.85), 0, PB_FLOOR + 0.45, "piedra", 0)
+add(box(0.15, 4.15, 0.70, 4.75), PB_FLOOR + 1.45, 3.30, "machimbre", 0)
 # planta alta
 w1 = W[1].difference(WIN[1])
 baranda = unary_union([g for g in walls[1] if g.geom_type == 'Polygon' and g.area < 0.6 and g.bounds[1] > 9.9 and g.bounds[2] > 6.3])
 add(w1.intersection(baranda), 3.40, 4.40, "baranda", 1)
-add(w1.difference(baranda), PA_FLOOR, 6.15, "muro", 1)
+hueco = box(0.99, 6.94, 1.21, 9.16)    # baranda de mampostería con tapa de madera sobre el hueco de la escalera
+add(w1.intersection(hueco), PA_FLOOR, PA_FLOOR + 0.92, "muro", 1)
+add(w1.intersection(hueco), PA_FLOOR + 0.92, PA_FLOOR + 0.97, "madera", 1)
+add_split(w1.difference(baranda).difference(hueco), PA_FLOOR, 6.15, 1, [(box(-1, 2.4, 7, 2.82), "tablas")])
 # ventanas: antepecho, dintel y vidrio
 for w in windows:
     fl = PB_FLOOR if w["f"] == 0 else PA_FLOOR; top = PA_FLOOR if w["f"] == 0 else 6.15
     g = box(*w["r"]); sill = fl + 2.10 - w["h"]
-    add(g, 0 if w["f"] == 0 else fl, sill, "muro", w["f"]); add(g, fl + 2.10, top, "muro", w["f"])
+    kk = "tablas" if w["f"] == 1 and w["r"][3] < 2.9 else "muro"
+    add(g, 0 if w["f"] == 0 else fl, sill, kk, w["f"]); add(g, fl + 2.10, top, kk, w["f"])
     add(g, sill, fl + 2.10, "vidrio", w["f"])
 # dinteles de puertas (no en el cerco ni en los portones de la cochera)
 for d in doors:
     if d["f"] == 0 and (d["hinge"][1] < 1.5 or d["hinge"][0] > 6.1): continue
+    if d["f"] == 1 and Polygon(d["lint"]).intersects(placard.buffer(0.1)): continue   # placard de la escalera: puerta hasta el cielorraso
     fl = PB_FLOOR if d["f"] == 0 else PA_FLOOR; top = PA_FLOOR if d["f"] == 0 else 6.15
     add(Polygon(d["lint"]), fl + 2.10, top, "muro", d["f"])
 
 # ---------- locales (para pisos y para saber dónde estás) ----------
-TIPO = {"Dormitorio": "parquet", "Terraza": "calcareo", "Lavadero": "calcareo", "Cochera": "calcareo"}
+TIPO = {"Dormitorio": "parquet", "Terraza": "calcareo", "Lavadero": "granitico", "Cochera": "granitico_verde", "Baño": "baldosa_blanca"}
 rooms = []
 labels = []
 for t in msp.query('TEXT[layer=="TEXTOS-LOCALES"]'):
@@ -187,10 +207,18 @@ for f in (0, 1):
             name = " / ".join(dict.fromkeys(names)) or ("Jardín" if c2.bounds[3] <= 1.51 else ("Placard" if c2.area < 2 else "Paso"))
             for p in polys(c2):
                 rooms.append({"f": f, "n": name, "piso": TIPO.get(names[0] if names else name, "granitico"), **p})
-rooms.append({"f": 0, "n": "Cochera", "piso": "calcareo", **polys(box(6.0, 0.15, 8.66, 6.6).difference(W[0]))[0]})
-rooms.append({"f": 0, "n": "Pasante", "piso": "calcareo", **polys(box(6.0, 6.75, 8.66, 12.0).difference(W[0]))[0]})
+# vanos de puertas: piso del local vecino (si no, el vano queda como hueco)
+for d in doors:
+    if d["f"] == 0 and (d["hinge"][1] < 1.5 or d["hinge"][0] > 6.1): continue
+    g = Polygon(d["lint"]).buffer(0.012, join_style=2)
+    near = [r for r in rooms if r["f"] == d["f"] and Polygon(r["o"], r["h"]).intersects(g.buffer(0.05))]
+    if not near: continue
+    r0 = max(near, key=lambda r: Polygon(r["o"], r["h"]).area)
+    rooms.append({"f": d["f"], "n": r0["n"], "piso": r0["piso"], "vano": True, **polys(g)[0]})
+rooms.append({"f": 0, "n": "Cochera", "piso": "granitico_verde", **polys(box(6.0, 0.15, 8.66, 6.6).difference(W[0]))[0]})
+rooms.append({"f": 0, "n": "Pasante", "piso": "baldosa", **polys(box(6.0, 6.75, 8.66, 12.0).difference(W[0]))[0]})
 rooms.append({"f": 1, "n": "Altillo sobre la cochera", "piso": "cemento", **polys(box(6.0, 0.15, 8.66, 6.6))[0]})
-rooms.append({"f": 1, "n": "Paso al altillo", "piso": "parquet", **polys(abertura.intersection(box(5.7, 3.0, 6.0, 3.8)))[0]})
+rooms.append({"f": 1, "n": "Dormitorio", "piso": "parquet", "vano": True, **polys(box(5.69, 4.40, 6.01, 5.05))[0]})
 techo1 = foot[1].difference(terraza).difference(placard)
 rooms.append({"f": 2, "n": "Entretecho", "piso": "cemento", **polys(techo1)[0]})
 def zfor(r):
@@ -200,21 +228,44 @@ def zfor(r):
     return {"Jardín": 0.03, "Porch": 0.30, "Cochera": 0.15, "Pasante": 0.15}.get(n, PB_FLOOR)
 for r in rooms: r["z"] = zfor(r)
 
+# ---------- revestimientos interiores: una lámina por cara de muro, con el color del local ----------
+CIELO = lambda r: 2.75 if r["n"] == "Cochera" else 3.30 if r["f"] == 0 else 6.15
+SIN = ("Jardín", "Porch", "Pasante", "Terraza", "Altillo sobre la cochera", "Entretecho")
+skins = []
+for i, r in enumerate(rooms):
+    if r["n"] in SIN or r.get("vano"): continue
+    poly = Polygon(r["o"], r["h"]); z0r, z1r = r["z"], CIELO(r)
+    for ring in [r["o"]] + r["h"]:
+        for a, b in zip(ring, ring[1:] + ring[:1]):
+            L = math.dist(a, b)
+            if L < 0.02: continue
+            mx, my = (a[0] + b[0]) / 2, (a[1] + b[1]) / 2; nx, ny = -(b[1] - a[1]) / L, (b[0] - a[0]) / L
+            if poly.contains(Point(mx + nx * 0.05, my + ny * 0.05)): nx, ny = -nx, -ny
+            o = Point(mx + nx * 0.05, my + ny * 0.05)
+            for g, pb, pt, k, pf in PG:
+                if k == "vidrio" or not g.contains(o): continue
+                z0, z1 = max(pb, z0r), min(pt, z1r)
+                if z1 - z0 > 0.02:
+                    e = 0.004
+                    skins.append([i, round(a[0] - nx*e, 3), round(a[1] - ny*e, 3), round(b[0] - nx*e, 3), round(b[1] - ny*e, 3), round(z0, 3), round(z1, 3)])
+
 slabs = []
 def slab(g, b, t, k):
     for p in polys(g): p.update(b=b, t=t, k=k); slabs.append(p)
 pb_house = foot[0].intersection(box(-1, 1.5, 7, 20))
-slab(pb_house.difference(foot[1]), 3.30, 3.45, "techo0")
+slab(pb_house.difference(foot[1]).intersection(box(-1, 2.6, 9, 20)), 3.30, 3.45, "techo0")   # el porch tiene techo de tejas propio
 slab(foot[1].difference(stair_all), 3.30, PA_FLOOR - 0.01, "losa")
 slab(techo1, 6.15, ATTIC, "techo1")
 slab(box(6.0, 0.0, 8.81, 6.75), LOSA_COCH_B, LOSA_COCH_T, "losa")
 
-out = {"pieces": pieces, "rooms": rooms, "slabs": slabs, "doors": doors,
+out = {"pieces": pieces, "rooms": rooms, "slabs": slabs, "doors": doors, "skins": skins,
        "stairs": [{**polys(t["g"])[0], "z": t["h"], "s": t["s"]} for t in stairs],
        "foot0": polys(foot[0]),
-       "roof": {"main": {"yr": 8.18, "hr": 8.85, "k": 0.4225, "x0": -0.15, "x1": 6.3, "y0": 2.1, "y1": 14.25, "notch": [4.25, 10.0]},
-                "coch": {"yr": 3.375, "hr": 5.70, "k": 0.576, "x0": 6.0, "x1": 8.81, "y0": -0.25, "y1": 7.0}}, "terraza": list(terraza.bounds), "lote": [0, 0, 8.66, 35.0]}
+       "roof": {"main": {"yr": 8.18, "hr": 8.85, "kF": 0.4225, "kB": 0.4225, "x0": -0.15, "x1": 6.3, "y0": 2.1, "y1": 14.25, "notch": [4.25, 10.0]},
+                # cochera: alero del frente ~3,0 (fotos), cumbrera sobre la puerta chica del dormitorio, faldón corto atrás
+                "coch": {"yr": 4.72, "hr": 5.35, "kF": 0.50, "kB": 0.70, "x0": 6.0, "x1": 8.81, "y0": -0.30, "y1": 7.0},
+                "porch": {"x0": 0.15, "x1": 5.72, "yw": 2.5, "hw": 3.32, "ye": 1.25, "he": 2.85}}, "terraza": list(terraza.bounds), "lote": [0, 0, 8.66, 35.0]}
 json.dump(out, open(sys.argv[2], "w"))
-print(len(pieces), "piezas", len(slabs), "losas", len(stairs), "escalones, alzada", round(RISE, 3))
+print(len(skins), "revestimientos", len(pieces), "piezas", len(slabs), "losas", len(stairs), "escalones, alzada", round(RISE, 3))
 for r in rooms: print(r["f"], r["n"], r["piso"], round(Polygon(r["o"]).area, 2))
 print(len(json.dumps(out))//1024, "KB")
