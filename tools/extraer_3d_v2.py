@@ -108,17 +108,17 @@ for f in (0, 1):
 
 # ---------- agregados v2 (relato de Santiago, no están en el plano) ----------
 ATTIC = 6.30                                   # piso del entretecho (arriba de la losa de cielorraso)
-LOSA_COCH_B, LOSA_COCH_T = 2.75, 2.90          # losa de la cochera (fotos: alero de la cochera ~3 m); arriba, el altillo
+LOSA_COCH_B, LOSA_COCH_T = 3.05, 3.25          # losa de la cochera: un escalón por debajo de la planta alta (dato de Santiago)
 abertura = box(5.69, 4.40, 6.01, 5.05)          # puerta chica 0,65 x 1,70 a mitad de la pared (foto del dormitorio)
 W[1] = W[1].difference(abertura)
 placard = box(0.15, 6.2, 1.7, 6.8)              # placard del dormitorio chico (Rop.)
 ladder = []
-for i in range(8):          # escalera de mano casi vertical, frente a la puerta del placard
-    y0 = 6.2 + 0.05 * i
-    ladder.append({"s": "L", "h": round(PA_FLOOR + (i + 1) * (ATTIC - PA_FLOOR) / 8, 4), "g": box(0.5, y0, 1.4, y0 + 0.05)})
-ladder.append({"s": "L", "h": ATTIC, "g": box(0.5, 6.6, 1.4, 6.8)})   # descanso arriba, a nivel del entretecho
+for i in range(8):          # escalera de mano apoyada contra la medianera (dato de Santiago)
+    x1 = 1.0 - 0.05 * i
+    ladder.append({"s": "L", "h": round(PA_FLOOR + (i + 1) * (ATTIC - PA_FLOOR) / 8, 4), "g": box(x1 - 0.05, 6.25, x1, 6.75)})
+ladder.append({"s": "L", "h": ATTIC, "g": box(0.15, 6.2, 0.6, 6.8)})   # arriba, a nivel del entretecho
 stairs += ladder
-stairs.append({"s": "P", "h": 3.22, "g": box(6.0, 4.40, 6.35, 5.05)})   # escalón supuesto al bajar al altillo
+stairs.append({"s": "P", "h": 3.40, "g": box(6.0, 4.40, 6.35, 5.05)})   # el escalón para bajar al altillo
 stair_all = unary_union([stair_all] + [t["g"] for t in ladder])
 
 # ---------- piezas con altura ----------
@@ -153,9 +153,9 @@ for y0 in (0.0, 6.6):
     add(box(8.46, y0, 8.66, y0 + 0.15), 0.15 if y0 else 0, LOSA_COCH_B, kk, 0)
     add(box(6.2, y0, 8.46, y0 + 0.15), 2.10, LOSA_COCH_B, kk, 0)
 # altillo: muretes bajos de frente y fondo (el resto lo cierra el techo)
-add(box(6.0, 0.0, 8.66, 0.15), LOSA_COCH_T, 2.95, "ladrillo", 1)
-add(box(6.0, 6.6, 8.66, 6.75), LOSA_COCH_T, 3.80, "muro", 1)
 add(box(5.7, 4.40, 6.0, 5.05), PA_FLOOR + 1.70, 6.15, "muro", 1)      # dintel de la puerta chica
+# frente de la cochera: borde de la losa en ladrillo
+add(box(6.0, 0.0, 8.81, 0.15), LOSA_COCH_B, LOSA_COCH_T, "ladrillo", 0)
 # tanque en el entretecho, arriba del baño de planta alta, apoyado sobre sus muros (dato de Santiago)
 add(box(3.76, 7.43, 3.96, 8.97), ATTIC, 6.55, "muro", 2); add(box(5.72, 7.43, 5.92, 8.97), ATTIC, 6.55, "muro", 2)
 add(box(3.76, 7.43, 5.92, 8.97), 6.55, 7.13, "tanque", 2)
@@ -186,6 +186,7 @@ for d in doors:
 
 # ---------- locales (para pisos y para saber dónde estás) ----------
 TIPO = {"Dormitorio": "parquet", "Terraza": "calcareo", "Lavadero": "granitico", "Cochera": "granitico_verde", "Baño": "baldosa_blanca"}
+TIPO1 = {"Baño": "granito_negro"}
 rooms = []
 labels = []
 for t in msp.query('TEXT[layer=="TEXTOS-LOCALES"]'):
@@ -206,7 +207,8 @@ for f in (0, 1):
             names = [n for ff, n, p in labels if ff == f and c2.buffer(0.3).contains(Point(p[0], p[1] - 0.2))]
             name = " / ".join(dict.fromkeys(names)) or ("Jardín" if c2.bounds[3] <= 1.51 else ("Placard" if c2.area < 2 else "Paso"))
             for p in polys(c2):
-                rooms.append({"f": f, "n": name, "piso": TIPO.get(names[0] if names else name, "granitico"), **p})
+                key = names[0] if names else name
+                rooms.append({"f": f, "n": name, "piso": (TIPO1.get(key) if f == 1 else None) or TIPO.get(key, "granitico"), **p})
 # vanos de puertas: piso del local vecino (si no, el vano queda como hueco)
 for d in doors:
     if d["f"] == 0 and (d["hinge"][1] < 1.5 or d["hinge"][0] > 6.1): continue
@@ -261,9 +263,10 @@ slab(box(6.0, 0.0, 8.81, 6.75), LOSA_COCH_B, LOSA_COCH_T, "losa")
 out = {"pieces": pieces, "rooms": rooms, "slabs": slabs, "doors": doors, "skins": skins,
        "stairs": [{**polys(t["g"])[0], "z": t["h"], "s": t["s"]} for t in stairs],
        "foot0": polys(foot[0]),
+       "fondo": {"galpon": [0.15, 31.85, 5.5, 34.85, 3.0], "parrilla": [6.0, 33.6, 8.66, 34.85], "puerta_patio": [1.7, 14.0]},
        "roof": {"main": {"yr": 8.18, "hr": 8.85, "kF": 0.4225, "kB": 0.4225, "x0": -0.15, "x1": 6.3, "y0": 2.1, "y1": 14.25, "notch": [4.25, 10.0]},
-                # cochera: alero del frente ~3,0 (fotos), cumbrera sobre la puerta chica del dormitorio, faldón corto atrás
-                "coch": {"yr": 4.72, "hr": 5.35, "kF": 0.50, "kB": 0.70, "x0": 6.0, "x1": 8.81, "y0": -0.30, "y1": 7.0},
+                # altillo: piso plano (losa) y techo a dos aguas que arranca del piso; 2 m en la cumbrera, que cae sobre la puerta chica
+                "coch": {"yr": 4.72, "hr": 5.32, "kF": 0.4386, "kB": 1.0197, "x0": 6.0, "x1": 8.81, "y0": -0.30, "y1": 7.0},
                 "porch": {"x0": 0.15, "x1": 5.72, "yw": 2.5, "hw": 3.32, "ye": 1.25, "he": 2.85}}, "terraza": list(terraza.bounds), "lote": [0, 0, 8.66, 35.0]}
 json.dump(out, open(sys.argv[2], "w"))
 print(len(skins), "revestimientos", len(pieces), "piezas", len(slabs), "losas", len(stairs), "escalones, alzada", round(RISE, 3))
