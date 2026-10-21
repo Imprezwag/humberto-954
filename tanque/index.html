@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>*,*::before,*::after{box-sizing:border-box}body{margin:0}[hidden]{display:none!important}</style>
+<title>Tanque Humberto 954</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: ficha de obra — visor 3D a la izquierda con tablero de control, análisis en columnas debajo. Paleta tomada de la copia heliográfica violeta de 1965. */
+:root{
+  --paper:#ECEAEE; --sheet:#F7F6F9; --ink:#3D2F6E; --ink-soft:#6E6390; --line:#CFC9DB;
+  --water:#3A86B8; --warn:#A8552A; --ok:#2F7A55;
+  --f-display:"Architects Daughter","Comic Sans MS",cursive;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#16131F; --sheet:#1F1B2B; --ink:#D9D1F2; --ink-soft:#A49BC0; --line:#3A3450;
+  --water:#5BA7D6; --warn:#E08C5C; --ok:#5DBA8A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#16131F; --sheet:#1F1B2B; --ink:#D9D1F2; --ink-soft:#A49BC0; --line:#3A3450;
+  --water:#5BA7D6; --warn:#E08C5C; --ok:#5DBA8A; color-scheme:dark}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
+.wrap{max-width:1180px;margin:0 auto;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:28px}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:12px}
+h1{font-family:var(--f-display);font-weight:400;font-size:clamp(28px,4.5vw,42px);line-height:1.1;margin:0;text-wrap:balance}
+.meta{font-family:var(--f-mono);font-size:12px;color:var(--ink-soft);letter-spacing:.04em;text-align:right}
+.viewer{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:0;border:1.5px solid var(--ink);background:var(--sheet)}
+@media (max-width:820px){.viewer{grid-template-columns:1fr}}
+#stage{position:relative;min-height:440px;height:56vh;max-height:620px;min-width:0;cursor:grab}
+#stage:active{cursor:grabbing}
+#stage canvas{display:block;width:100%;height:100%}
+.hint{position:absolute;left:12px;bottom:10px;font-family:var(--f-mono);font-size:11px;color:var(--ink-soft);pointer-events:none}
+.views{position:absolute;top:10px;left:10px;display:flex;gap:6px;flex-wrap:wrap}
+.views button{font:500 12px var(--f-mono);background:var(--sheet);color:var(--ink);border:1px solid var(--ink);padding:5px 10px;cursor:pointer}
+.views button:hover{background:var(--ink);color:var(--sheet)}
+.panel{border-left:1.5px solid var(--ink);padding:18px;display:grid;gap:18px;align-content:start}
+@media (max-width:820px){.panel{border-left:0;border-top:1.5px solid var(--ink)}}
+.lbl{font:500 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
+.big{font:500 40px/1 var(--f-mono);font-variant-numeric:tabular-nums;color:var(--water)}
+.big small{font-size:16px;color:var(--ink-soft)}
+input[type=range]{width:100%;accent-color:var(--water)}
+.row{display:flex;justify-content:space-between;font:13px var(--f-mono);font-variant-numeric:tabular-nums}
+.toggles{display:grid;gap:8px}
+.toggles label{display:flex;gap:8px;align-items:center;font-size:14px;cursor:pointer}
+.toggles input{accent-color:var(--ink);width:16px;height:16px}
+:focus-visible{outline:2px solid var(--water);outline-offset:2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:28px}
+section{min-width:0}
+h2{font-family:var(--f-display);font-weight:400;font-size:24px;margin:0 0 10px;border-bottom:1px solid var(--line);padding-bottom:6px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td,th{padding:7px 4px;border-bottom:1px dashed var(--line);text-align:left;vertical-align:top}
+th{font:500 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
+td.n{font-family:var(--f-mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+p{margin:0 0 10px;max-width:68ch}
+.note{font-size:13px;color:var(--ink-soft)}
+ul{margin:0;padding-left:18px;display:grid;gap:8px}
+li b{font-weight:600}
+.tag{display:inline-block;font:500 11px var(--f-mono);padding:1px 6px;border:1px solid currentColor;margin-right:6px;letter-spacing:.05em}
+.tag.w{color:var(--warn)} .tag.o{color:var(--ok)}
+.err{padding:30px;font-family:var(--f-mono);color:var(--warn)}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Tanque para agua · 1000 lts</h1>
+    <div class="meta">Obra Manuel Blanco y Sra. · Humberto 1º 954/58, Punta Alta<br>Plano de H°A° 1965 · cotas en cm</div>
+  </header>
+
+  <div class="viewer">
+    <div id="stage">
+      <div class="views">
+        <button type="button" id="v-iso">Perspectiva</button>
+        <button type="button" id="v-top">Planta</button>
+        <button type="button" id="v-front">Frente</button>
+        <button type="button" id="v-side">Lateral</button>
+      </div>
+      <div class="hint">Arrastrá para girar · rueda o pellizco para zoom</div>
+    </div>
+    <div class="panel">
+      <div>
+        <div class="lbl">Agua en el tanque</div>
+        <div class="big"><span id="lit">994</span> <small>L</small></div>
+      </div>
+      <div>
+        <div class="row"><label for="lvl">Altura de agua</label><span><span id="hcm">36</span> cm</span></div>
+        <input type="range" id="lvl" min="0" max="42" step="1" value="36">
+        <div class="row"><span>Llenado</span><span id="pct">86 %</span></div>
+        <div class="row"><span>Peso del agua</span><span id="kg">994 kg</span></div>
+        <div class="row"><span>Peso total aprox.</span><span id="tot">2,84 t</span></div>
+      </div>
+      <div class="toggles">
+        <div class="lbl">Mostrar</div>
+        <label><input type="checkbox" id="t-cut"> Corte por la mitad</label>
+        <label><input type="checkbox" id="t-trans" checked> Hormigón translúcido</label>
+        <label><input type="checkbox" id="t-lid" checked> Tapa de inspección</label>
+        <label><input type="checkbox" id="t-reb"> Armadura (esquema)</label>
+        <label><input type="checkbox" id="t-dim" checked> Cotas</label>
+        <label><input type="checkbox" id="t-sup" checked> Apoyos</label>
+      </div>
+      <p class="note">Ubicación de tapa, caños y apoyos es aproximada: en el plano esas partes están dibujadas sin acotar.</p>
+    </div>
+  </div>
+
+  <div class="grid">
+    <section>
+      <h2>Dimensiones</h2>
+      <table>
+        <tr><th></th><th style="text-align:right">Exterior</th><th style="text-align:right">Interior</th></tr>
+        <tr><td>Largo</td><td class="n">216 cm</td><td class="n">200 cm</td></tr>
+        <tr><td>Ancho</td><td class="n">154 cm</td><td class="n">138 cm</td></tr>
+        <tr><td>Alto</td><td class="n">58 cm</td><td class="n">42 cm</td></tr>
+      </table>
+      <table style="margin-top:14px">
+        <tr><th>Espesores</th><th></th></tr>
+        <tr><td>Paredes</td><td class="n">8 cm</td></tr>
+        <tr><td>Losa de fondo</td><td class="n">10 cm</td></tr>
+        <tr><td>Losa de tapa</td><td class="n">6 cm</td></tr>
+        <tr><td>Superficie interior de base</td><td class="n">2,76 m²</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Capacidad</h2>
+      <table>
+        <tr><td>Volumen interior bruto (200 × 138 × 42)</td><td class="n">1.159 L</td></tr>
+        <tr><td>Capacidad nominal del plano</td><td class="n">1.000 L</td></tr>
+        <tr><td>Altura de agua para 1.000 L</td><td class="n">≈ 36 cm</td></tr>
+        <tr><td>Cada cm de altura equivale a</td><td class="n">27,6 L</td></tr>
+      </table>
+      <p style="margin-top:12px">El hueco interior da 1.159 litros si se llenara hasta el techo, pero eso nunca pasa: el rebalse y la entrada del flotante quedan unos centímetros abajo de la losa. Con el agua a 36 cm tenés justo los 1.000 L del plano, así que el número es coherente y deja unos 6 cm de cámara de aire.</p>
+    </section>
+
+    <section>
+      <h2>Peso sobre la estructura</h2>
+      <table>
+        <tr><td>Hormigón (≈ 0,77 m³ × 2.400 kg/m³)</td><td class="n">≈ 1.850 kg</td></tr>
+        <tr><td>Agua a 1.000 L</td><td class="n">1.000 kg</td></tr>
+        <tr><td><b>Total en servicio</b></td><td class="n"><b>≈ 2,85 t</b></td></tr>
+        <tr><td>Por m² de planta exterior (3,33 m²)</td><td class="n">≈ 860 kg/m²</td></tr>
+      </table>
+      <p style="margin-top:12px">El tanque vacío pesa casi el doble que el agua que guarda. Está apoyado sobre los muros del entretecho, al lado de la cumbrera, así que esas casi 3 toneladas bajan por esos muros y la viga de apoyo.</p>
+    </section>
+
+    <section>
+      <h2>Armadura según el plano</h2>
+      <table>
+        <tr><th>Elemento</th><th style="text-align:right">Hierro</th></tr>
+        <tr><td>Losa de fondo, una dirección</td><td class="n">Ø6 c/24</td></tr>
+        <tr><td>Losa de fondo, otra dirección</td><td class="n">Ø8 c/30</td></tr>
+        <tr><td>Losa de tapa</td><td class="n">Ø6 c/12</td></tr>
+        <tr><td>Paredes, barras longitudinales</td><td class="n">3 Ø6</td></tr>
+        <tr><td>Esquinas</td><td class="n">4 Ø6</td></tr>
+        <tr><td>Refuerzo junto al apoyo</td><td class="n">3 Ø10</td></tr>
+      </table>
+      <p class="note" style="margin-top:10px">Lectura de la copia escaneada; algunas indicaciones están borrosas y conviene confirmarlas con el original en mano.</p>
+    </section>
+
+    <section>
+      <h2>Qué revisar en la restauración</h2>
+      <ul>
+        <li><span class="tag w">60 años</span>Un tanque de 1965 casi seguro tiene el hormigón carbonatado. Con 8 cm de pared el recubrimiento es mínimo: buscá fisuras, manchas de óxido y trozos desprendidos en las esquinas y la losa de fondo.</li>
+        <li><span class="tag w">Filtraciones</span>Revisá el cielorraso y los muros debajo del tanque. Humedad ahí suele venir del fondo o de la unión con los caños.</li>
+        <li><span class="tag w">Higiene</span>Vacialo y miralo por dentro. Si el revoque interior está poroso o desgranado, hay que impermeabilizarlo con un producto apto para agua potable.</li>
+        <li><span class="tag o">Alternativa</span>Muchos optan por dejarlo vacío o demolerlo y poner un tanque plástico tricapa de 1.000 L. Pesa unos 30 kg vacío, así le sacás casi 1,8 t de carga muerta a la estructura.</li>
+        <li><span class="tag o">Cañerías</span>El perfil del plano indica subida de Ø19 y bajada de Ø13 en hierro galvanizado. A esta edad conviene reemplazarlas por termofusión o PP.</li>
+      </ul>
+      <p class="note" style="margin-top:10px">El estado estructural real lo tiene que evaluar un ingeniero o MMO en obra; estos datos sirven para la charla con él.</p>
+    </section>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function(){
+const stage=document.getElementById('stage');
+if(!window.THREE||!THREE.OrbitControls){stage.insertAdjacentHTML('beforeend','<div class="err">No se pudo cargar el visor 3D.</div>');return;}
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.localClippingEnabled=true;
+stage.appendChild(renderer.domElement);
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(38,1,1,5000);
+const controls=new THREE.OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;controls.target.set(0,29,0);
+scene.add(new THREE.HemisphereLight(0xffffff,0x887799,0.85));
+const sun=new THREE.DirectionalLight(0xffffff,0.7);sun.position.set(200,400,250);scene.add(sun);
+
+const cut=new THREE.Plane(new THREE.Vector3(0,0,-1),0);
+const clipOn=[];
+const conc=new THREE.MeshStandardMaterial({color:0xb9b4c2,roughness:.9,transparent:true,opacity:.35,side:THREE.DoubleSide,depthWrite:false});
+const edgeM=new THREE.LineBasicMaterial({color:0x3d2f6e});
+const lidM=new THREE.MeshStandardMaterial({color:0x8f88a0,roughness:.8});
+const supM=new THREE.MeshStandardMaterial({color:0xc29a7a,roughness:1});
+const waterM=new THREE.MeshStandardMaterial({color:0x3a86b8,transparent:true,opacity:.62,roughness:.2,depthWrite:false});
+const rebM=new THREE.LineBasicMaterial({color:0xa8552a});
+[conc,edgeM,lidM,waterM,rebM,supM].forEach(m=>clipOn.push(m));
+
+const tank=new THREE.Group(),edges=new THREE.Group();scene.add(tank,edges);
+function box(x0,x1,y0,y1,z0,z1,mat,grp){
+  const g=new THREE.BoxGeometry(x1-x0,y1-y0,z1-z0);
+  const m=new THREE.Mesh(g,mat);m.position.set((x0+x1)/2,(y0+y1)/2,(z0+z1)/2);
+  (grp||tank).add(m);
+  const e=new THREE.LineSegments(new THREE.EdgesGeometry(g),edgeM);e.position.copy(m.position);edges.add(e);
+  return m;
+}
+const X=108,Z=77;
+box(-X,X,0,10,-Z,Z,conc);                 // losa de fondo
+box(-X,X,10,52,-Z,-Z+8,conc);             // pared
+box(-X,X,10,52,Z-8,Z,conc);
+box(-X,-X+8,10,52,-Z+8,Z-8,conc);
+box(X-8,X,10,52,-Z+8,Z-8,conc);
+// losa de tapa con abertura de inspección (aprox. 50x50, sector derecho)
+const hx0=35,hx1=85,hz0=-50,hz1=0;
+box(-X,hx0,52,58,-Z,Z,conc);box(hx1,X,52,58,-Z,Z,conc);
+box(hx0,hx1,52,58,-Z,hz0,conc);box(hx0,hx1,52,58,hz1,Z,conc);
+const lidG=new THREE.Group();scene.add(lidG);
+box(hx0-4,hx1+4,58,62,hz0-4,hz1+4,lidM,lidG);
+// caños (aprox.)
+const pipeM=new THREE.MeshStandardMaterial({color:0x6e6390,metalness:.4,roughness:.5});clipOn.push(pipeM);
+function pipe(r,len,pos,rot){const c=new THREE.Mesh(new THREE.CylinderGeometry(r,r,len,16),pipeM);c.position.set(...pos);if(rot)c.rotation.set(...rot);tank.add(c);}
+pipe(1,40,[X+12,46,40],[0,0,Math.PI/2]);   // subida Ø19 al flotante
+pipe(.7,60,[80,-20,40]);                    // bajada Ø13 desde el fondo
+// apoyos
+const supG=new THREE.Group();scene.add(supG);
+box(-X,-X+20,-40,0,-Z-6,Z+6,supM,supG);box(X-20,X,-40,0,-Z-6,Z+6,supM,supG);
+// agua
+const water=new THREE.Mesh(new THREE.BoxGeometry(200,1,138),waterM);scene.add(water);
+// armadura esquemática
+const reb=new THREE.Group();scene.add(reb);
+function seg(a,b){const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...a),new THREE.Vector3(...b)]);reb.add(new THREE.Line(g,rebM));}
+for(let z=-Z+4;z<=Z-4;z+=24)seg([-X+3,4,z],[X-3,4,z]);
+for(let x=-X+4;x<=X-4;x+=30)seg([x,5,-Z+3],[x,5,Z-3]);
+for(let z=-Z+4;z<=Z-4;z+=12)seg([-X+3,55,z],[X-3,55,z]);
+[[-X+3,-Z+3],[X-3,-Z+3],[-X+3,Z-3],[X-3,Z-3]].forEach(([x,z])=>seg([x,3,z],[x,56,z]));
+[20,32,44].forEach(y=>{seg([-X+4,y,-Z+4],[X-4,y,-Z+4]);seg([-X+4,y,Z-4],[X-4,y,Z-4]);seg([-X+4,y,-Z+4],[-X+4,y,Z-4]);seg([X-4,y,-Z+4],[X-4,y,Z-4]);});
+reb.visible=false;
+// cotas
+const dims=new THREE.Group();scene.add(dims);
+const dimM=new THREE.LineBasicMaterial({color:0x3d2f6e});
+function label(t,pos){
+  const c=document.createElement('canvas');c.width=256;c.height=96;const x=c.getContext('2d');
+  x.font='500 52px "IBM Plex Mono", monospace';x.textAlign='center';x.textBaseline='middle';
+  x.fillStyle=css('--sheet')||'#fff';const w=x.measureText(t).width+24;x.fillRect(128-w/2,18,w,60);
+  x.fillStyle=css('--ink')||'#333';x.fillText(t,128,50);
+  const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthTest:false}));
+  s.scale.set(40,15,1);s.position.set(...pos);s.renderOrder=9;dims.add(s);
+}
+function dline(a,b){dims.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...a),new THREE.Vector3(...b)]),dimM));}
+dline([-X,0,Z+30],[X,0,Z+30]);dline([-X,0,Z+22],[-X,0,Z+38]);dline([X,0,Z+22],[X,0,Z+38]);label('216',[0,0,Z+44]);
+dline([X+30,0,-Z],[X+30,0,Z]);dline([X+22,0,-Z],[X+38,0,-Z]);dline([X+22,0,Z],[X+38,0,Z]);label('154',[X+48,0,0]);
+dline([-X-25,0,Z],[-X-25,58,Z]);dline([-X-33,0,Z],[-X-17,0,Z]);dline([-X-33,58,Z],[-X-17,58,Z]);label('58',[-X-45,29,Z]);
+
+let materials=[...clipOn];
+function setLevel(h){
+  water.visible=h>0;water.scale.y=Math.max(h,.01);water.position.set(0,10+h/2,0);
+  const L=Math.round(200*138*h/1000);
+  document.getElementById('lit').textContent=L.toLocaleString('es-AR');
+  document.getElementById('hcm').textContent=h;
+  document.getElementById('pct').textContent=Math.round(L/1159*100)+' %';
+  document.getElementById('kg').textContent=L.toLocaleString('es-AR')+' kg';
+  document.getElementById('tot').textContent=((1848+L)/1000).toLocaleString('es-AR',{minimumFractionDigits:2,maximumFractionDigits:2})+' t';
+}
+const lvl=document.getElementById('lvl');lvl.addEventListener('input',()=>setLevel(+lvl.value));setLevel(36);
+const on=(id,f)=>{const el=document.getElementById(id);el.addEventListener('change',()=>f(el.checked));f(el.checked);};
+on('t-cut',v=>materials.forEach(m=>{m.clippingPlanes=v?[cut]:[];m.needsUpdate=true;}));
+on('t-trans',v=>{conc.opacity=v?.35:1;conc.depthWrite=!v;conc.needsUpdate=true;});
+on('t-lid',v=>lidG.visible=v);
+on('t-reb',v=>reb.visible=v);
+on('t-dim',v=>dims.visible=v);
+on('t-sup',v=>supG.visible=v);
+
+function view(p){camera.position.set(...p);controls.target.set(0,29,0);controls.update();}
+document.getElementById('v-iso').onclick=()=>view([300,260,360]);
+document.getElementById('v-top').onclick=()=>view([0,520,1]);
+document.getElementById('v-front').onclick=()=>view([0,40,480]);
+document.getElementById('v-side').onclick=()=>view([520,40,0]);
+view([300,260,360]);
+
+function theme(){
+  const ink=new THREE.Color(css('--ink')||'#3d2f6e');edgeM.color.copy(ink);dimM.color.copy(ink);
+  waterM.color.set(css('--water')||'#3a86b8');rebM.color.set(css('--warn')||'#a8552a');
+}
+theme();
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',theme);}catch(e){}
+
+function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
+new ResizeObserver(resize).observe(stage);resize();
+(function loop(){controls.update();renderer.render(scene,camera);requestAnimationFrame(loop);})();
+})();
+</script>
+
+</body>
+</html>
